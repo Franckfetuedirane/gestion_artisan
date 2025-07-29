@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title|default:'Enregistrer une vente' }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="mb-4 text-center">{{ title|default:'Enregistrer une vente' }}</h2>
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                    {% endif %}
+                    <form method="post" novalidate id="vente-form">
+                        {% csrf_token %}
+                        <div id="form-fields">
+                            {{ form.artisan|as_crispy_field }}
+                            {{ form.produit|as_crispy_field }}
+                            {{ form.quantite|as_crispy_field }}
+                            {{ form.client_nom|as_crispy_field }}
+                            {{ form.client_telephone|as_crispy_field }}
+                            {{ form.client_email|as_crispy_field }}
+                            {{ form.mode_paiement|as_crispy_field }}
+                            {{ form.statut|as_crispy_field }}
+                            {{ form.notes|as_crispy_field }}
+                            <div class="mb-3">
+                                <label for="id_montant" class="form-label">Montant total</label>
+                                {{ form.montant }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Enregistrer</button>
+                        <a href="{% url 'artisans:vente_list' %}" class="btn btn-link w-100 mt-2">Retour à la liste</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+    function updateMontant() {
+        const produitId = document.getElementById('id_produit').value;
+        const quantite = parseFloat(document.getElementById('id_quantite').value) || 0;
+        const prixUnitaire = produitsPrix[produitId] || 0;
+        const montant = (quantite * prixUnitaire).toFixed(2);
+        document.getElementById('id_montant').value = montant;
+    }
+    document.getElementById('id_produit').addEventListener('change', updateMontant);
+    document.getElementById('id_quantite').addEventListener('input', updateMontant);
+    // Initialisation
+    updateMontant();
+</script>
+{% endblock %}

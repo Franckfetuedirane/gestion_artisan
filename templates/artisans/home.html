@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - Gestion Artisanale{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-hands-holding-seedling me-3"></i>
+                    Gestion Artisanale
+                </h1>
+                <p class="lead mb-4">
+                    Application complète pour la gestion des artisans, de leurs produits et du suivi des ventes.
+                    Simplifiez l'organisation de votre village artisanal.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'artisans:artisan_list' %}" class="btn btn-light btn-lg">
+                        <i class="fas fa-users me-2"></i>Voir les Artisans
+                    </a>
+                    <a href="{% url 'artisans:produit_list' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-box me-2"></i>Découvrir les Produits
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistiques -->
+<section class="content-section">
+    <div class="container">
+        <h2 class="section-title">Aperçu Général</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h3>{{ total_artisans }}</h3>
+                    <p>Artisans Actifs</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-box fa-3x mb-3"></i>
+                    <h3>{{ total_produits }}</h3>
+                    <p>Produits Disponibles</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-euro-sign fa-3x mb-3"></i>
+                    <h3>{{ artisan.total_ventes_annotated|floatformat:0 }}FCFA</h3>
+                    <p>Total des Ventes</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                    <h3>{{ ventes_mois|floatformat:0 }}€</h3>
+                    <p>Ventes du Mois</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Produits Récents -->
+<section class="content-section bg-light">
+    <div class="container">
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+                <h2 class="section-title text-start">Produits Récents</h2>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="{% url 'artisans:produit_list' %}" class="btn btn-primary">
+                    <i class="fas fa-eye me-2"></i>Voir Tous les Produits
+                </a>
+            </div>
+        </div>
+
+        {% if produits_recents %}
+        <div class="row g-4">
+            {% for produit in produits_recents %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card produit-card h-100">
+                    {% if produit.image %}
+                    <img src="{{ produit.image.url }}" class="card-img-top" alt="{{ produit.nom }}">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text text-muted">{{ produit.description|truncatewords:20 }}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="produit-price">{{ produit.prix }}€</span>
+                                <span class="produit-stock">
+                                    <i class="fas fa-boxes me-1"></i>{{ produit.stock }} en stock
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>{{ produit.artisan.nom }}
+                                </small>
+                                <a href="{% url 'artisans:produit_detail' produit.id %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>Voir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>Aucun produit disponible</h3>
+            <p>Commencez par ajouter des produits à votre catalogue.</p>
+            <a href="{% url 'artisans:produit_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter un Produit
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Artisans Populaires -->
+<section class="content-section">
+    <div class="container">
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+                <h2 class="section-title text-start">Artisans Populaires</h2>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="{% url 'artisans:artisan_list' %}" class="btn btn-primary">
+                    <i class="fas fa-users me-2"></i>Voir Tous les Artisans
+                </a>
+            </div>
+        </div>
+
+        {% if artisans_populaires %}
+        <div class="row g-4">
+            {% for artisan in artisans_populaires %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        {% if artisan.photo %}
+                        <img src="{{ artisan.photo.url }}" class="artisan-photo mb-3" alt="{{ artisan.nom }}">
+                        {% else %}
+                        <div
+                            class="artisan-photo mb-3 bg-light d-flex align-items-center justify-content-center mx-auto">
+                            <i class="fas fa-user fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="card-title">{{ artisan.nom }}</h5>
+                        <p class="card-text text-muted">{{ artisan.specialite }}</p>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h6 class="text-primary">{{ artisan.total_ventes_annotated|floatformat:0 }}€</h6>
+                                <small class="text-muted">Ventes</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-success">{{ artisan.produits.count }}</h6>
+                                <small class="text-muted">Produits</small>
+                            </div>
+                        </div>
+                        <a href="{% url 'artisans:artisan_detail' artisan.id %}" class="btn btn-outline-primary mt-3">
+                            <i class="fas fa-eye me-1"></i>Voir le Profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h3>Aucun artisan enregistré</h3>
+            <p>Commencez par ajouter des artisans à votre base de données.</p>
+            <a href="{% url 'artisans:artisan_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter un Artisan
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Catégories Populaires -->
+<section class="content-section bg-light">
+    <div class="container">
+        <h2 class="section-title">Catégories Populaires</h2>
+
+        {% if categories_populaires %}
+        <div class="row g-4">
+            {% for categorie in categories_populaires %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        {% if categorie.icone %}
+                        <i class="{{ categorie.icone }} fa-3x text-primary mb-3"></i>
+                        {% else %}
+                        <i class="fas fa-tag fa-3x text-primary mb-3"></i>
+                        {% endif %}
+                        <h5 class="card-title">{{ categorie.nom }}</h5>
+                        <p class="card-text text-muted">{{ categorie.description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-center">
+                            <span class="badge bg-primary">{{ categorie.nombre_produits }} produits</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-tags"></i>
+            <h3>Aucune catégorie créée</h3>
+            <p>Créez des catégories pour organiser vos produits.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Actions Rapides -->
+<section class="content-section">
+    <div class="container">
+        <h2 class="section-title">Actions Rapides</h2>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Ajouter un Artisan</h5>
+                        <p class="card-text">Enregistrez un nouvel artisan dans le système.</p>
+                        <a href="{% url 'artisans:artisan_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Ajouter
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-box fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Ajouter un Produit</h5>
+                        <p class="card-text">Créez un nouveau produit dans le catalogue.</p>
+                        <a href="{% url 'artisans:produit_create' %}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Ajouter
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Enregistrer une Vente</h5>
+                        <p class="card-text">Enregistrez une nouvelle vente.</p>
+                        <a href="{% url 'artisans:vente_create' %}" class="btn btn-info">
+                            <i class="fas fa-plus me-2"></i>Enregistrer
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-clipboard-list fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Nouvelle Commande</h5>
+                        <p class="card-text">Créez une commande spéciale.</p>
+                        <a href="{% url 'artisans:commande_create' %}" class="btn btn-warning">
+                            <i class="fas fa-plus me-2"></i>Créer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Rafraîchir les statistiques toutes les 30 secondes
+    setInterval(function () {
+        fetch('{% url "artisans:api_stats" %}')
+            .then(response => response.json())
+            .then(data => {
+                // Mettre à jour les statistiques affichées
+                document.querySelectorAll('.stats-card h3').forEach((element, index) => {
+                    if (index === 0) element.textContent = data.total_artisans;
+                    if (index === 1) element.textContent = data.total_produits;
+                    if (index === 2) element.textContent = data.total_ventes.toFixed(0) + '€';
+                    if (index === 3) element.textContent = data.ventes_mois.toFixed(0) + '€';
+                });
+            })
+            .catch(error => console.error('Error refreshing stats:', error));
+    }, 30000);
+</script>
+{% endblock %}

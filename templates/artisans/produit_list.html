@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Produits - Gestion Artisanale{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- En-tête -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h1 class="h2 mb-0">
+                <i class="fas fa-box me-2"></i>Produits
+            </h1>
+            <p class="text-muted mb-0">{{ page_obj.paginator.count }} produits trouvés</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <a href="{% url 'artisans:produit_create' %}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Ajouter un Produit
+            </a>
+        </div>
+    </div>
+
+    <!-- Formulaire de recherche -->
+    <div class="search-form">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="id_q" class="form-label">Rechercher</label>
+                {{ form.q }}
+            </div>
+            <div class="col-md-3">
+                <label for="id_categorie" class="form-label">Catégorie</label>
+                {{ form.categorie }}
+            </div>
+            <div class="col-md-2">
+                <label for="id_prix_min" class="form-label">Prix min</label>
+                {{ form.prix_min }}
+            </div>
+            <div class="col-md-2">
+                <label for="id_prix_max" class="form-label">Prix max</label>
+                {{ form.prix_max }}
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-search me-1"></i>Rechercher
+                </button>
+                <a href="{% url 'artisans:produit_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>Effacer
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Liste des produits -->
+    {% if page_obj %}
+    <div class="row g-4">
+        {% for produit in page_obj %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card produit-card h-100">
+                {% if produit.image %}
+                <img src="{{ produit.image.url }}" class="card-img-top" alt="{{ produit.nom }}">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ produit.nom }}</h5>
+                    <p class="card-text text-muted">{{ produit.description|truncatewords:20 }}</p>
+
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="produit-price">{{ produit.prix }}€</span>
+                            <span class="produit-stock">
+                                <i class="fas fa-boxes me-1"></i>{{ produit.stock }} en stock
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>{{ produit.artisan.nom }}
+                            </small>
+                            {% if produit.categorie %}
+                            <span class="badge bg-secondary">{{ produit.categorie.nom }}</span>
+                            {% endif %}
+                        </div>
+
+                        {% if produit.materiau %}
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-tools me-1"></i>{{ produit.materiau }}
+                            </small>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge {% if produit.disponible %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if produit.disponible %}Disponible{% else %}Indisponible{% endif %}
+                            </span>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'artisans:produit_detail' produit.id %}"
+                                    class="btn btn-sm btn-outline-primary" title="Voir">
+                                    <i class="fas fa-eye me-1"></i>
+                                </a>
+                                <a href="{% url 'artisans:produit_update' produit.id %}"
+                                    class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                    <i class="fas fa-edit me-1"></i>
+                                </a>
+                                <a href="{% url 'artisans:produit_delete' produit.id %}"
+                                    class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                    <i class="fas fa-trash me-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Pagination des produits" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{
+                    num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- État vide -->
+    <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>Aucun produit trouvé</h3>
+        <p>
+            {% if form.q.value or form.categorie.value or form.prix_min.value or form.prix_max.value %}
+            Aucun produit ne correspond à vos critères de recherche.
+            <a href="{% url 'artisans:produit_list' %}" class="btn btn-outline-primary ms-2">Effacer les filtres</a>
+            {% else %}
+            Commencez par ajouter des produits à votre catalogue.
+            {% endif %}
+        </p>
+        <a href="{% url 'artisans:produit_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Ajouter un Produit
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Catégories populaires -->
+    {% if categories %}
+    <div class="mt-5">
+        <h3 class="h4 mb-3">
+            <i class="fas fa-tags me-2"></i>Catégories
+        </h3>
+        <div class="row g-3">
+            {% for categorie in categories %}
+            <div class="col-md-3 col-sm-6">
+                <a href="?categorie={{ categorie.id }}" class="text-decoration-none">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            {% if categorie.icone %}
+                            <i class="{{ categorie.icone }} fa-2x text-primary mb-2"></i>
+                            {% else %}
+                            <i class="fas fa-tag fa-2x text-primary mb-2"></i>
+                            {% endif %}
+                            <h6 class="card-title">{{ categorie.nom }}</h6>
+                            <small class="text-muted">{{ categorie.produits.count }} produits</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

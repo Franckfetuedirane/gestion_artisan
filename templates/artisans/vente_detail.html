@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Détail de la vente{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="mb-4 text-center">Détail de la vente</h2>
+                    <dl class="row">
+                        <dt class="col-5">Produit</dt>
+                        <dd class="col-7">{{ vente.produit.nom }}</dd>
+                        <dt class="col-5">Artisan</dt>
+                        <dd class="col-7">{{ vente.artisan.nom }}</dd>
+                        <dt class="col-5">Quantité</dt>
+                        <dd class="col-7">{{ vente.quantite }}</dd>
+                        <dt class="col-5">Prix unitaire</dt>
+                        <dd class="col-7">{{ vente.prix_unitaire }} FCFA</dd>
+                        <dt class="col-5">Montant total</dt>
+                        <dd class="col-7 fw-bold">{{ vente.montant }} FCFA</dd>
+                        <dt class="col-5">Client</dt>
+                        <dd class="col-7">{{ vente.client_nom }}</dd>
+                        <dt class="col-5">Téléphone</dt>
+                        <dd class="col-7">{{ vente.client_telephone|default:'-' }}</dd>
+                        <dt class="col-5">Email</dt>
+                        <dd class="col-7">{{ vente.client_email|default:'-' }}</dd>
+                        <dt class="col-5">Mode de paiement</dt>
+                        <dd class="col-7">{{ vente.get_mode_paiement_display }}</dd>
+                        <dt class="col-5">Statut</dt>
+                        <dd class="col-7">{{ vente.get_statut_display }}</dd>
+                        <dt class="col-5">Date de vente</dt>
+                        <dd class="col-7">{{ vente.date_vente|date:'d/m/Y H:i' }}</dd>
+                        {% if vente.notes %}
+                        <dt class="col-5">Notes</dt>
+                        <dd class="col-7">{{ vente.notes }}</dd>
+                        {% endif %}
+                    </dl>
+                    <a href="{% url 'artisans:vente_list' %}" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à la liste des ventes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ artisan.nom }} - Gestion Artisanale{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Profil de l'artisan -->
+    <div class="artisan-profile">
+        <div class="row">
+            <div class="col-md-3 text-center">
+                {% if artisan.photo %}
+                <img src="{{ artisan.photo.url }}" class="artisan-photo mb-3" alt="{{ artisan.nom }}">
+                {% else %}
+                <div class="artisan-photo mb-3 bg-light d-flex align-items-center justify-content-center mx-auto">
+                    <i class="fas fa-user fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'artisans:artisan_update' artisan.id %}" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>Modifier
+                    </a>
+                    <a href="{% url 'artisans:produit_create' %}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Ajouter un Produit
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="h2 mb-1">{{ artisan.nom }}</h1>
+                        <span class="badge bg-primary fs-6">{{ artisan.specialite }}</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge {% if artisan.actif %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if artisan.actif %}Actif{% else %}Inactif{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><i class="fas fa-envelope me-2 text-muted"></i>{{ artisan.email }}</p>
+                        <p><i class="fas fa-phone me-2 text-muted"></i>{{ artisan.telephone }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><i class="fas fa-calendar me-2 text-muted"></i>Inscrit le {{
+                            artisan.date_inscription|date:"d/m/Y" }}</p>
+                        <p><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ artisan.adresse|linebreaks }}</p>
+                    </div>
+                </div>
+
+                {% if artisan.description %}
+                <div class="mb-3">
+                    <h5>Description</h5>
+                    <p class="text-muted">{{ artisan.description|linebreaks }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="artisan-stats">
+        <div class="artisan-stat">
+            <h4>{{ stats.total_ventes|floatformat:0 }}€</h4>
+            <p class="mb-0">Total des Ventes</p>
+        </div>
+        <div class="artisan-stat">
+            <h4>{{ stats.nombre_produits }}</h4>
+            <p class="mb-0">Produits</p>
+        </div>
+        <div class="artisan-stat">
+            <h4>{{ stats.nombre_ventes }}</h4>
+            <p class="mb-0">Transactions</p>
+        </div>
+        <div class="artisan-stat">
+            <h4>{{ stats.moyenne_prix|floatformat:0 }}€</h4>
+            <p class="mb-0">Prix Moyen</p>
+        </div>
+    </div>
+
+    <!-- Produits de l'artisan -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2 class="h3">
+                <i class="fas fa-box me-2"></i>Produits ({{ produits.count }})
+            </h2>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <a href="{% url 'artisans:produit_create' %}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Ajouter un Produit
+            </a>
+        </div>
+    </div>
+
+    {% if produits %}
+    <div class="row g-4 mb-5">
+        {% for produit in produits %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card produit-card h-100">
+                {% if produit.image %}
+                <img src="{{ produit.image.url }}" class="card-img-top" alt="{{ produit.nom }}">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ produit.nom }}</h5>
+                    <p class="card-text text-muted">{{ produit.description|truncatewords:15 }}</p>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="produit-price">{{ produit.prix }}€</span>
+                            <span class="produit-stock">
+                                <i class="fas fa-boxes me-1"></i>{{ produit.stock }} en stock
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            {% if produit.categorie %}
+                            <span class="badge bg-secondary">{{ produit.categorie.nom }}</span>
+                            {% endif %}
+                            <div>
+                                <a href="{% url 'artisans:produit_detail' produit.id %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>Voir
+                                </a>
+                                <a href="{% url 'artisans:produit_update' produit.id %}"
+                                    class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit me-1"></i>Modifier
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>Aucun produit</h3>
+        <p>Cet artisan n'a pas encore de produits dans son catalogue.</p>
+        <a href="{% url 'artisans:produit_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Ajouter un Produit
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Dernières ventes -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2 class="h3">
+                <i class="fas fa-shopping-cart me-2"></i>Dernières Ventes
+            </h2>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <a href="{% url 'artisans:vente_create' %}" class="btn btn-info">
+                <i class="fas fa-plus me-2"></i>Enregistrer une Vente
+            </a>
+        </div>
+    </div>
+
+    {% if ventes %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Produit</th>
+                    <th>Client</th>
+                    <th>Quantité</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vente in ventes %}
+                <tr>
+                    <td>{{ vente.date_vente|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'artisans:produit_detail' vente.produit.id %}">
+                            {{ vente.produit.nom }}
+                        </a>
+                    </td>
+                    <td>{{ vente.client_nom }}</td>
+                    <td>{{ vente.quantite }}</td>
+                    <td class="fw-bold">{{ vente.montant }}€</td>
+                    <td>
+                        <span class="badge status-{{ vente.statut }}">
+                            {{ vente.get_statut_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>Aucune vente</h3>
+        <p>Cet artisan n'a pas encore enregistré de ventes.</p>
+        <a href="{% url 'artisans:vente_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Enregistrer une Vente
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{% url 'artisans:artisan_update' artisan.id %}" class="btn btn-primary w-100">
+                                <i class="fas fa-edit me-2"></i>Modifier le Profil
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'artisans:produit_create' %}" class="btn btn-success w-100">
+                                <i class="fas fa-plus me-2"></i>Ajouter un Produit
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'artisans:vente_create' %}" class="btn btn-info w-100">
+                                <i class="fas fa-shopping-cart me-2"></i>Enregistrer une Vente
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'artisans:commande_create' %}" class="btn btn-warning w-100">
+                                <i class="fas fa-clipboard-list me-2"></i>Nouvelle Commande
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

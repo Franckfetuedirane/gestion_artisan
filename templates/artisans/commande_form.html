@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Ajouter une Commande{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Ajouter une Commande</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        {% for field in form %}
+        <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field|as_crispy_field }}
+            {% if field.errors %}
+            <div class="text-danger small">
+                {{ field.errors|striptags }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a href="{% url 'artisans:commande_list' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

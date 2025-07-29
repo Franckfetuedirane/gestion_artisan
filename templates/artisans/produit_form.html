@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} - Gestion Artisanale{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- En-tête -->
+            <div class="row align-items-center mb-4">
+                <div class="col-md-6">
+                    <h1 class="h2 mb-0">
+                        <i class="fas fa-box me-2"></i>{{ title }}
+                    </h1>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'artisans:produit_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Informations du produit
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" data-validate>
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                {{ form.nom|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.prix|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.artisan|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.categorie|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.stock|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.disponible|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                {{ form.description|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form.materiau|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.dimensions|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.poids|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-image me-2"></i>Image du produit
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        {{ form.image|as_crispy_field }}
+                                        {% if produit.image %}
+                                        <div class="mt-3">
+                                            <p class="text-muted mb-2">Image actuelle :</p>
+                                            <img src="{{ produit.image.url }}" class="img-thumbnail"
+                                                style="max-width: 200px;" alt="Image actuelle">
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>Conseils
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="text-muted small">
+                                            <li>Ajoutez une image de qualité</li>
+                                            <li>Décrivez bien le produit</li>
+                                            <li>Précisez les matériaux</li>
+                                            <li>Indiquez les dimensions</li>
+                                            <li>Vérifiez le stock</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'artisans:produit_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Aide -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Aide
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Champs obligatoires :</h6>
+                            <ul class="text-muted">
+                                <li>Nom du produit</li>
+                                <li>Artisan responsable</li>
+                                <li>Prix</li>
+                                <li>Stock disponible</li>
+                                <li>Description</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Champs optionnels :</h6>
+                            <ul class="text-muted">
+                                <li>Catégorie</li>
+                                <li>Image du produit</li>
+                                <li>Matériau principal</li>
+                                <li>Dimensions</li>
+                                <li>Poids</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Prévisualisation de l'image
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageInput = document.getElementById('id_image');
+        if (imageInput) {
+            imageInput.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        // Créer ou mettre à jour la prévisualisation
+                        let preview = document.querySelector('.image-preview');
+                        if (!preview) {
+                            preview = document.createElement('img');
+                            preview.className = 'img-thumbnail mt-2 image-preview';
+                            preview.style.maxWidth = '200px';
+                            imageInput.parentNode.appendChild(preview);
+                        }
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Calcul automatique du montant total (si applicable)
+        const prixInput = document.getElementById('id_prix');
+        const stockInput = document.getElementById('id_stock');
+
+        function updateTotal() {
+            const prix = parseFloat(prixInput.value) || 0;
+            const stock = parseInt(stockInput.value) || 0;
+            const total = prix * stock;
+
+            // Afficher le total quelque part si nécessaire
+            let totalDisplay = document.getElementById('total-display');
+            if (!totalDisplay) {
+                totalDisplay = document.createElement('div');
+                totalDisplay.id = 'total-display';
+                totalDisplay.className = 'alert alert-info mt-2';
+                prixInput.parentNode.appendChild(totalDisplay);
+            }
+            totalDisplay.innerHTML = `<strong>Valeur totale du stock : ${total.toFixed(2)}€</strong>`;
+        }
+
+        if (prixInput && stockInput) {
+            prixInput.addEventListener('input', updateTotal);
+            stockInput.addEventListener('input', updateTotal);
+            updateTotal(); // Calcul initial
+        }
+    });
+</script>
+{% endblock %}
