@@ -53,7 +53,7 @@ class VenteForm(ModelForm):
     montant = forms.DecimalField(
         label='Montant total',
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'id': 'id_montant'})
+        widget=forms.NumberInput(attrs={'class': 'form-control bg-light', 'readonly': 'readonly', 'id': 'id_montant'})
     )
 
     def __init__(self, *args, **kwargs):

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
+
 {% block title %}{{ title|default:'Enregistrer une vente' }}{% endblock %}
 
 {% block content %}
@@ -40,21 +41,31 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} 
 
 {% block extra_js %}
-<script>
 
+<script>
+    // Dictionnaire des prix unitaires des produits (injecté par Django)
+    var produitsPrix = JSON.parse('{{ produits_prix|escapejs }}');
     function updateMontant() {
-        const produitId = document.getElementById('id_produit').value;
-        const quantite = parseFloat(document.getElementById('id_quantite').value) || 0;
-        const prixUnitaire = produitsPrix[produitId] || 0;
-        const montant = (quantite * prixUnitaire).toFixed(2);
-        document.getElementById('id_montant').value = montant;
+        var produitInput = document.getElementById('id_produit');
+        var quantiteInput = document.getElementById('id_quantite');
+        var montantInput = document.getElementById('id_montant');
+        if (!produitInput || !quantiteInput || !montantInput) return;
+        var produitId = produitInput.value;
+        var quantite = parseFloat(quantiteInput.value) || 0;
+        var prixUnitaire = produitsPrix[produitId] || 0;
+        var montant = (quantite * prixUnitaire).toFixed(2);
+        montantInput.value = montant;
     }
-    document.getElementById('id_produit').addEventListener('change', updateMontant);
-    document.getElementById('id_quantite').addEventListener('input', updateMontant);
-    // Initialisation
-    updateMontant();
+    document.addEventListener('DOMContentLoaded', function() {
+        var produitInput = document.getElementById('id_produit');
+        var quantiteInput = document.getElementById('id_quantite');
+        if (produitInput) produitInput.addEventListener('change', updateMontant);
+        if (quantiteInput) quantiteInput.addEventListener('input', updateMontant);
+        updateMontant();
+    });
 </script>
+
 {% endblock %}

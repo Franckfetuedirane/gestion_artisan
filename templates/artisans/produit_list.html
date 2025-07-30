@@ -20,35 +20,35 @@
         </div>
     </div>
 
-    <!-- Formulaire de recherche -->
-    <div class="search-form">
-        <form method="get" class="row g-3">
-            <div class="col-md-3">
-                <label for="id_q" class="form-label">Rechercher</label>
-                {{ form.q }}
-            </div>
-            <div class="col-md-3">
-                <label for="id_categorie" class="form-label">Catégorie</label>
-                {{ form.categorie }}
-            </div>
-            <div class="col-md-2">
-                <label for="id_prix_min" class="form-label">Prix min</label>
-                {{ form.prix_min }}
-            </div>
-            <div class="col-md-2">
-                <label for="id_prix_max" class="form-label">Prix max</label>
-                {{ form.prix_max }}
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">
-                    <i class="fas fa-search me-1"></i>Rechercher
-                </button>
-                <a href="{% url 'artisans:produit_list' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-times me-1"></i>Effacer
-                </a>
-            </div>
-        </form>
-    </div>
+<!-- Formulaire de recherche finalisé -->
+<div class="search-form mb-5 p-4 rounded-4 shadow-sm bg-light border">
+    <form method="get" class="row gy-3 gx-3">
+        <div class="col-lg-2 col-md-3 flex-grow-1">
+            <label for="id_q" class="form-label fw-bold">🔍 Rechercher</label>
+            {{ form.q }}
+        </div>
+        <div class="col-lg-2 col-md-3 flex-grow-1">
+            <label for="id_categorie" class="form-label fw-bold">📂 Catégorie</label>
+            {{ form.categorie }}
+        </div>
+        <div class="col-lg-2 col-md-2 flex-grow-1">
+            <label for="id_prix_min" class="form-label fw-bold">💰 Prix min</label>
+            {{ form.prix_min }}
+        </div>
+        <div class="col-lg-2 col-md-2 flex-grow-1">
+            <label for="id_prix_max" class="form-label fw-bold">💵 Prix max</label>
+            {{ form.prix_max }}
+        </div>
+        <div class="col-lg-2 col-md-2 d-flex flex-column justify-content-end">
+            <button type="submit" class="btn btn-primary mb-2 w-100">
+                <i class="fas fa-search me-1"></i> Rechercher
+            </button>
+            <a href="{% url 'artisans:produit_list' %}" class="btn btn-secondary w-100">
+                <i class="fas fa-times me-1"></i> Effacer
+            </a>
+        </div>
+    </form>
+</div>
 
     <!-- Liste des produits -->
     {% if page_obj %}
@@ -69,7 +69,7 @@
 
                     <div class="mt-auto">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="produit-price">{{ produit.prix }}€</span>
+                            <span class="produit-price">{{ produit.prix }} FCFA</span>
                             <span class="produit-stock">
                                 <i class="fas fa-boxes me-1"></i>{{ produit.stock }} en stock
                             </span>
@@ -119,54 +119,59 @@
     </div>
 
     <!-- Pagination -->
-    {% if page_obj.has_other_pages %}
-    <nav aria-label="Pagination des produits" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link"
-                    href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link"
-                    href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                    <i class="fas fa-angle-left"></i>
-                </a>
-            </li>
-            {% endif %}
+{% if page_obj.has_other_pages %}
+<nav aria-label="Pagination des produits" class="mt-5">
+    <ul class="pagination justify-content-center pagination-lg">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link rounded-circle shadow-sm mx-1"
+                href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                aria-label="Début">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link rounded-circle shadow-sm mx-1"
+                href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                aria-label="Précédent">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        </li>
+        {% endif %}
 
-            {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <li class="page-item active">
-                <span class="page-link">{{ num }}</span>
-            </li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item">
-                <a class="page-link"
-                    href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{
-                    num }}</a>
-                </li>
-                {% endif %}
-                {% endfor %}
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link rounded shadow-sm mx-1">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link rounded shadow-sm mx-1"
+                href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
 
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link"
-                        href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link"
-                        href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                        <i class="fas fa-angle-double-right"></i>
-                    </a>
-                </li>
-                {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link rounded-circle shadow-sm mx-1"
+                href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                aria-label="Suivant">
+                <i class="fas fa-angle-right"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link rounded-circle shadow-sm mx-1"
+                href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                aria-label="Fin">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
 
     {% else %}
     <!-- État vide -->

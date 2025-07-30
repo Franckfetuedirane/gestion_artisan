@@ -20,169 +20,149 @@
         </div>
     </div>
 
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h3>{{ total_ventes|floatformat:0 }}€</h3>
-                <p>Total des Ventes</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h3>{{ page_obj.paginator.count }}</h3>
-                <p>Nombre de Transactions</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h3>{{ page_obj.paginator.count|floatformat:0|divisibleby:page_obj.paginator.count|yesno:"0,1"|add:1 }}
-                </h3>
-                <p>Moyenne par Vente</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h3>{{ page_obj.paginator.count|floatformat:0|divisibleby:page_obj.paginator.count|yesno:"0,1"|add:1 }}
-                </h3>
-                <p>Ventes du Mois</p>
-            </div>
+<!-- Statistiques améliorées -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card bg-primary text-white text-center py-4 px-3 rounded-4 shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
+            <h3 class="fs-3 fw-bold mb-2">{{ total_ventes|floatformat:0 }} FCFA</h3>
+            <p class="mb-0 text-secondary-emphasis">Total des Ventes</p>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="stats-card bg-light text-center py-4 px-3 rounded-4 shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
+            <h3 class="fs-3 fw-bold mb-2">{{ page_obj.paginator.count }}</h3>
+            <p class="mb-0 text-secondary-emphasis">Nombre de Transactions</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card bg-light text-center py-4 px-3 rounded-4 shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
+            <h3 class="fs-3 fw-bold mb-2">{{ moyenne_vente|floatformat:0 }} FCFA</h3>
+            <p class="mb-0 text-secondary-emphasis">Moyenne par Vente</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card bg-light text-center py-4 px-3 rounded-4 shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
+            <h3 class="fs-3 fw-bold mb-2">{{ ventes_semaine|floatformat:0 }} FCFA</h3>
+            <p class="mb-0 text-secondary-emphasis">Ventes de la Semaine</p>
+        </div>
+    </div>
+</div>
 
-    <!-- Filtres -->
-    <div class="search-form">
-        <form method="get" class="row g-3">
-            <div class="col-md-2">
-                <label for="artisan" class="form-label">Artisan</label>
-                <select class="form-select" id="artisan" name="artisan">
-                    <option value="">Tous</option>
-                    {% for artisan in artisans %}
+<!-- Filtres avec style amélioré -->
+<div class="search-form mb-5 p-4 rounded-4 shadow-sm bg-light border">
+    <form method="get" class="row gy-3 gx-3">
+        <div class="col-lg-2 col-md-3 flex-grow-1">
+            <label for="artisan" class="form-label fw-bold">🧑‍🔧 Artisan</label>
+            <select class="form-select" id="artisan" name="artisan">
+                <option value="">Tous</option>
+                {% for artisan in artisans %}
                     {% with artisan.id|stringformat:"s" as artisan_id_str %}
-                    <option value="{{ artisan.id }}" {% if request.GET.artisan|stringformat:"s" == artisan_id_str %}selected{% endif %}>
-                        {{ artisan.nom }}
-                    </option>
+                        <option value="{{ artisan.id }}" {% if request.GET.artisan|stringformat:"s" == artisan_id_str %}selected{% endif %}>{{ artisan.nom }}</option>
                     {% endwith %}
-                    {% endfor %}
-                </select>
-            </div>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="col-md-2">
-                <label for="produit" class="form-label">Produit</label>
-                <select class="form-select" id="produit" name="produit">
-                    <option value="">Tous</option>
-                    {% for produit in produits %}
+        <div class="col-lg-2 col-md-3 flex-grow-1">
+            <label for="produit" class="form-label fw-bold">📦 Produit</label>
+            <select class="form-select" id="produit" name="produit">
+                <option value="">Tous</option>
+                {% for produit in produits %}
                     {% with produit.id|stringformat:"s" as produit_id_str %}
-                    <option value="{{ produit.id }}" {% if request.GET.produit|stringformat:"s" == produit_id_str %}selected{% endif %}>
-                        {{ produit.nom }}
-                    </option>
+                        <option value="{{ produit.id }}" {% if request.GET.produit|stringformat:"s" == produit_id_str %}selected{% endif %}>{{ produit.nom }}</option>
                     {% endwith %}
-                    {% endfor %}
-                </select>
-            </div>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="col-md-2">
-                <label for="statut" class="form-label">Statut</label>
-                <select class="form-select" id="statut" name="statut">
-                    <option value="">Tous</option>
-                    {% for value, label in statuts %}
-                    <option value="{{ value }}" {% if request.GET.statut==value %}selected{% endif %}>
-                        {{ label }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="col-lg-2 col-md-2 flex-grow-1">
+            <label for="statut" class="form-label fw-bold">📊 Statut</label>
+            <select class="form-select" id="statut" name="statut">
+                <option value="">Tous</option>
+                {% for value, label in statuts %}
+                    <option value="{{ value }}" {% if request.GET.statut|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="col-md-2">
-                <label for="statut" class="form-label">Statut</label>
-                <select class="form-select" id="statut" name="statut">
-                    <option value="">Tous</option>
-                    {% for value, label in statuts %}
-                    <option value="{{ value }}" {% if request.GET.statut==value %}selected{% endif %}>
-                        {{ label }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label for="date_debut" class="form-label">Date début</label>
-                <input type="date" class="form-control" id="date_debut" name="date_debut"
-                    value="{{ request.GET.date_debut }}">
-            </div>
-            <div class="col-md-2">
-                <label for="date_fin" class="form-label">Date fin</label>
-                <input type="date" class="form-control" id="date_fin" name="date_fin"
-                    value="{{ request.GET.date_fin }}">
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">
-                    <i class="fas fa-search me-1"></i>Filtrer
-                </button>
-                <a href="{% url 'artisans:vente_list' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-times me-1"></i>Effacer
-                </a>
-            </div>
-        </form>
-    </div>
+        <div class="col-lg-2 col-md-2 flex-grow-1">
+            <label for="date_debut" class="form-label fw-bold">Date début</label>
+            <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ request.GET.date_debut }}">
+        </div>
+
+        <div class="col-lg-2 col-md-2 flex-grow-1">
+            <label for="date_fin" class="form-label fw-bold">Date fin</label>
+            <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ request.GET.date_fin }}">
+        </div>
+
+        <div class="col-lg-2 col-md-2 d-flex flex-column justify-content-end">
+            <button type="submit" class="btn btn-primary w-100 mb-2">
+                <i class="fas fa-search me-1"></i> Filtrer
+            </button>
+            <a href="{% url 'artisans:vente_list' %}" class="btn btn-secondary w-100">
+                <i class="fas fa-times me-1"></i> Effacer
+            </a>
+        </div>
+    </form>
+</div>
 
     <!-- Liste des ventes -->
     {% if page_obj %}
     <div class="table-responsive">
-        <table class="table">
-            <thead>
+        <table class="table table-sm align-middle">
+            <thead class="table-light"></thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Artisan</th>
-                    <th>Produit</th>
-                    <th>Client</th>
-                    <th>Quantité</th>
-                    <th>Prix Unitaire</th>
-                    <th>Montant</th>
-                    <th>Mode Paiement</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
+                    <th class="small py-2 px-2">Date</th>
+                    <th class="small py-2 px-2">Artisan</th>
+                    <th class="small py-2 px-2">Produit</th>
+                    <th class="small py-2 px-2">Client</th>
+                    <th class="small py-2 px-2">Quantité</th>
+                    <th class="small py-2 px-2">Prix Unitaire</th>
+                    <th class="small py-2 px-2">Montant</th>
+                    <th class="small py-2 px-2">Mode Paiement</th>
+                    <th class="small py-2 px-2">Statut</th>
+                    <th class="small py-2 px-2">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for vente in page_obj %}
                 <tr>
-                    <td>{{ vente.date_vente|date:"d/m/Y H:i" }}</td>
-                    <td>
-                        <a href="{% url 'artisans:artisan_detail' vente.artisan.id %}">
+                    <td class="small py-2 px-2">{{ vente.date_vente|date:"d/m/Y H:i" }}</td>
+                    <td class="small py-2 px-2">
+                        <a href="{% url 'artisans:artisan_detail' vente.artisan.id %}" class="text-decoration-none text-dark">
                             {{ vente.artisan.nom }}
                         </a>
                     </td>
-                    <td>
-                        <a href="{% url 'artisans:produit_detail' vente.produit.id %}">
+                    <td class="small py-2 px-2">
+                        <a href="{% url 'artisans:produit_detail' vente.produit.id %}" class="text-decoration-none text-dark">
                             {{ vente.produit.nom }}
                         </a>
                     </td>
-                    <td>{{ vente.client_nom }}</td>
-                    <td>{{ vente.quantite }}</td>
-                    <td>{{ vente.prix_unitaire }}€</td>
-                    <td class="fw-bold text-success">{{ vente.montant }}€</td>
-                    <td>
+                    <td class="small py-2 px-2">{{ vente.client_nom }}</td>
+                    <td class="small py-2 px-2">{{ vente.quantite }}</td>
+                    <td class="small py-2 px-2">{{ vente.prix_unitaire }} FCFA</td>
+                    <td class="small py-2 px-2 fw-bold text-success">{{ vente.montant }} FCFA</td>
+                    <td class="small py-2 px-2">
                         <span class="badge bg-secondary">{{ vente.get_mode_paiement_display }}</span>
                     </td>
-                    <td>
+                    <td class="small py-2 px-2">
                         <span class="badge status-{{ vente.statut }}">
                             {{ vente.get_statut_display }}
                         </span>
                     </td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <a href="{% url 'artisans:vente_detail' vente.id %}" class="btn btn-sm btn-outline-primary">
+                    <td class="small py-2 px-2">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="{% url 'artisans:vente_detail' vente.id %}" class="btn btn-outline-primary">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{% url 'artisans:vente_delete' vente.id %}"
-                                class="btn btn-sm btn-outline-danger ms-2">
+                            <a href="{% url 'artisans:vente_delete' vente.id %}" class="btn btn-outline-danger ms-1">
                                 <i class="fas fa-trash"></i>
                             </a>
-                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle ms-1"
                                 data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
                                     <a class="dropdown-item" href="{% url 'artisans:vente_detail' vente.id %}">
                                         <i class="fas fa-eye me-2"></i>Voir détails

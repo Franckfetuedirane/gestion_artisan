@@ -19,6 +19,28 @@
         </div>
     </div>
 
+<!-- Formulaire de recherche -->
+<div class="search-form mb-4">
+    <form method="get" class="row gy-2 gx-3 align-items-end">
+        <div class="col-md-4">
+            <label for="q" class="form-label fw-semibold">Rechercher</label>
+            <input type="text" class="form-control shadow-sm" id="q" name="q"
+                   placeholder="Nom client, artisan..." value="{{ request.GET.q }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i> Rechercher
+            </button>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'artisans:commande_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-1"></i> Effacer
+            </a>
+        </div>
+    </form>
+</div>
+
+
     {% if page_obj %}
     <div class="table-responsive">
         <table class="table">
@@ -42,7 +64,7 @@
                     <td>{{ commande.client_nom }}</td>
                     <td>{{ commande.description|truncatewords:10 }}</td>
                     <td>{{ commande.quantite }}</td>
-                    <td>{{ commande.prix_estime }}€</td>
+                    <td>{{ commande.prix_estime }} FCFA</td>
                     <td><span class="badge bg-info">{{ commande.get_statut_display }}</span></td>
                     <td>
                         <a href="{% url 'artisans:commande_delete' commande.id %}"

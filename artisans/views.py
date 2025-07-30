@@ -1,6 +1,33 @@
+
 from django.shortcuts import render, get_object_or_404, redirect
+import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Sum, Count
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.utils import timezone
+from datetime import datetime, timedelta
+from .models import Artisan, Produit, Vente, Commande, Categorie
+from .forms import ArtisanForm, ProduitForm, VenteForm, CommandeForm, CategorieForm, RechercheForm
+
+@login_required
+def commande_create(request):
+    """Créer une nouvelle commande"""
+    if request.method == 'POST':
+        form = CommandeForm(request.POST)
+        if form.is_valid():
+            commande = form.save()
+            messages.success(request, f'Commande créée avec succès!')
+            return redirect('artisans:commande_list')
+    else:
+        form = CommandeForm()
+    context = {
+        'form': form,
+        'title': 'Créer une commande',
+    }
+    return render(request, 'artisans/commande_form.html', context)
 from django.db.models import Q, Sum, Count
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -189,10 +216,16 @@ def vente_list(request):
     
     # Statistiques
     total_ventes = ventes.aggregate(total=Sum('montant'))['total'] or 0
-    
+    nb_ventes = ventes.count()
+    moyenne_vente = (total_ventes / nb_ventes) if nb_ventes else 0
+    # Ventes de la semaine (7 derniers jours)
+    debut_semaine = timezone.now() - timedelta(days=7)
+    ventes_semaine = ventes.filter(date_vente__gte=debut_semaine).aggregate(total=Sum('montant'))['total'] or 0
     context = {
         'page_obj': page_obj,
         'total_ventes': total_ventes,
+        'moyenne_vente': moyenne_vente,
+        'ventes_semaine': ventes_semaine,
         'artisans': Artisan.objects.filter(actif=True),
         'statuts': Vente._meta.get_field('statut').choices,
     }
@@ -210,14 +243,19 @@ def vente_detail(request, vente_id):
 def commande_list(request):
     """Liste des commandes avec filtres"""
     commandes = Commande.objects.all()
-    
     # Filtres
+    q = request.GET.get('q', '').strip()
     artisan_id = request.GET.get('artisan')
     statut = request.GET.get('statut')
-    
+
+    if q:
+        commandes = commandes.filter(
+            Q(client_nom__icontains=q) |
+              Q(artisan__nom__icontains=q) |
+              Q(description__icontains=q)
+        )
     if artisan_id:
         commandes = commandes.filter(artisan_id=artisan_id)
-    
     if statut:
         commandes = commandes.filter(statut=statut)
     
@@ -315,42 +353,41 @@ def produit_update(request, produit_id):
 @login_required
 def vente_create(request):
     """Créer une nouvelle vente"""
+    montant_initial = 0
     if request.method == 'POST':
         form = VenteForm(request.POST)
         if form.is_valid():
             vente = form.save(commit=False)
-            # Récupérer le prix du produit sélectionné
             produit = vente.produit
             vente.prix_unitaire = produit.prix
             vente.montant = vente.quantite * vente.prix_unitaire
             vente.save()
             messages.success(request, f'Vente enregistrée avec succès!')
             return redirect('artisans:vente_detail', vente_id=vente.id)
+        else:
+            # Si le formulaire n'est pas valide, calculer le montant pour affichage
+            produit_id = form.data.get('produit')
+            quantite = form.data.get('quantite')
+            try:
+                produit = Produit.objects.get(id=produit_id)
+                prix_unitaire = produit.prix
+                montant_initial = float(quantite) * float(prix_unitaire)
+            except Exception:
+                montant_initial = 0
+            form.fields['montant'].initial = montant_initial
     else:
         form = VenteForm()
+        form.fields['montant'].initial = 0
+    # Préparer un dictionnaire {produit_id: prix} pour le JS
+    produits_qs = Produit.objects.all()
+    produits_prix = {str(p.id): float(p.prix) for p in produits_qs}
     context = {
         'form': form,
         'title': 'Enregistrer une vente',
+        'produits_prix': json.dumps(produits_prix),
     }
     return render(request, 'artisans/vente_form.html', context)
 
-@login_required
-def commande_create(request):
-    """Créer une nouvelle commande"""
-    if request.method == 'POST':
-        form = CommandeForm(request.POST)
-        if form.is_valid():
-            commande = form.save()
-            messages.success(request, f'Commande créée avec succès!')
-            return redirect('artisans:commande_list')
-    else:
-        form = CommandeForm()
-    
-    context = {
-        'form': form,
-        'title': 'Créer une commande',
-    }
-    return render(request, 'artisans/commande_form.html', context)
 
 @login_required
 def artisan_delete(request, artisan_id):
